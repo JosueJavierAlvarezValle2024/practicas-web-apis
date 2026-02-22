@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba de Servicio Web</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 15px; margin-right: 10px; cursor: pointer; }
+        pre { background: #222; color: #0f0; padding: 15px; border-radius: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>Intercambio de información con el Servidor</h2>
+    
+    <button onclick="pedirAlServidor()">1. Pedir datos al Servidor (GET)</button>
+    <button onclick="enviarAlServidor()">2. Enviar datos al Servidor (POST)</button>
+
+    <h3>Respuesta del Servidor:</h3>
+    <pre id="pantalla_respuesta">Esperando interacción...</pre>
+
+    <script>
+        // Función 1: Pide datos (GET)
+        function pedirAlServidor() {
+            fetch('http://localhost/practicas_web/servicio_web.php')
+                .then(respuesta => respuesta.json())
+                .then(datos => {
+                    document.getElementById('pantalla_respuesta').innerText = JSON.stringify(datos, null, 4);
+                });
+        }
+
+        // Función 2: Envía datos (POST)
+        function enviarAlServidor() {
+            // Esta es la información que le mandaremos a PHP
+            const miInformacion = {
+                usuario: "Josue",
+                actividad: "Practicando APIs REST",
+                curso: "Desarrollo Web"
+            };
+
+            fetch('http://localhost/practicas_web/servicio_web.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(miInformacion)
+            })
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                document.getElementById('pantalla_respuesta').innerText = JSON.stringify(datos, null, 4);
+            });
+        }
+    </script>
+
+</body>
+</html>

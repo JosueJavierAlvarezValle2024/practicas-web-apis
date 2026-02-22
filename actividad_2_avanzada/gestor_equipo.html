@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Plantilla - Servicio Web API</title>
+    <style>
+        /* Estilos limpios y profesionales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2e7d32; /* Un tono verde oscuro para el tema principal */
+            text-align: center;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 10px;
+        }
+        .formulario {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #388e3c; }
+        .btn-eliminar { background-color: #d32f2f; padding: 5px 10px; font-size: 14px; }
+        .btn-eliminar:hover { background-color: #b71c1c; }
+        
+        table {
+            width: 100%;
+            background: #fff;
+            border-collapse: collapse;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #4caf50; color: white; }
+        tr:hover { background-color: #f1f8f1; }
+    </style>
+</head>
+<body>
+
+    <h1>⚽ Gestión de Plantilla del Equipo</h1>
+
+    <div class="formulario">
+        <input type="text" id="nombre" placeholder="Nombre del jugador" required>
+        <select id="posicion">
+            <option value="Portero">Portero</option>
+            <option value="Defensa">Defensa</option>
+            <option value="Medio Centro">Medio Centro</option>
+            <option value="Delantero">Delantero</option>
+        </select>
+        <input type="number" id="dorsal" placeholder="Dorsal (Ej: 10)" min="1" max="99" required>
+        <button onclick="registrarJugador()">Registrar (POST)</button>
+    </div>
+
+    <table id="tablaJugadores">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Posición</th>
+                <th>Dorsal</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+            </tbody>
+    </table>
+
+    <script>
+        const urlAPI = 'api_equipo.php';
+
+        // 1. PETICIÓN GET: Leer la información del servidor al cargar la página
+        function cargarPlantilla() {
+            fetch(urlAPI)
+                .then(respuesta => respuesta.json())
+                .then(datos => {
+                    const cuerpo = document.getElementById('cuerpoTabla');
+                    cuerpo.innerHTML = ''; // Limpiar la tabla
+
+                    if(datos.estatus === "exito") {
+                        datos.datos.forEach(jugador => {
+                            const fila = `<tr>
+                                <td>${jugador.id}</td>
+                                <td><strong>${jugador.nombre}</strong></td>
+                                <td>${jugador.posicion}</td>
+                                <td>${jugador.dorsal}</td>
+                                <td><button class="btn-eliminar" onclick="eliminarJugador(${jugador.id})">Borrar (DELETE)</button></td>
+                            </tr>`;
+                            cuerpo.innerHTML += fila;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error al cargar la plantilla:', error));
+        }
+
+        // 2. PETICIÓN POST: Enviar información de un nuevo registro
+        function registrarJugador() {
+            const nombre = document.getElementById('nombre').value;
+            const posicion = document.getElementById('posicion').value;
+            const dorsal = document.getElementById('dorsal').value;
+
+            if(!nombre || !dorsal) {
+                alert("Por favor, llena todos los campos.");
+                return;
+            }
+
+            const nuevoJugador = {
+                nombre: nombre,
+                posicion: posicion,
+                dorsal: parseInt(dorsal)
+            };
+
+            fetch(urlAPI, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoJugador)
+            })
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                if(datos.estatus === "exito") {
+                    // Limpiar el formulario y recargar la tabla
+                    document.getElementById('nombre').value = '';
+                    document.getElementById('dorsal').value = '';
+                    cargarPlantilla(); 
+                } else {
+                    alert("Error: " + datos.error);
+                }
+            });
+        }
+
+        // 3. PETICIÓN DELETE: Enviar la instrucción de borrar al servidor
+        function eliminarJugador(idJugador) {
+            if(confirm("¿Estás seguro de eliminar a este jugador de la plantilla?")) {
+                fetch(urlAPI, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: idJugador })
+                })
+                .then(respuesta => respuesta.json())
+                .then(datos => {
+                    if(datos.estatus === "exito") {
+                        cargarPlantilla(); // Recargar la tabla para ver los cambios
+                    }
+                });
+            }
+        }
+
+        // Ejecutar la petición GET inicial en cuanto cargue la página
+        cargarPlantilla();
+    </script>
+</body>
+</html>
