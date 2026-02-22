@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Plantilla - Servicio Web API</title>
     <style>
-        /* Estilos limpios y profesionales */
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
@@ -15,7 +15,7 @@
             padding: 20px;
         }
         h1 {
-            color: #2e7d32; /* Un tono verde oscuro para el tema principal */
+            color: #2e7d32; 
             text-align: center;
             border-bottom: 2px solid #4caf50;
             padding-bottom: 10px;
@@ -92,13 +92,13 @@
     <script>
         const urlAPI = 'api_equipo.php';
 
-        // 1. PETICIÓN GET: Leer la información del servidor al cargar la página
+        
         function cargarPlantilla() {
             fetch(urlAPI)
                 .then(respuesta => respuesta.json())
                 .then(datos => {
                     const cuerpo = document.getElementById('cuerpoTabla');
-                    cuerpo.innerHTML = ''; // Limpiar la tabla
+                    cuerpo.innerHTML = ''; 
 
                     if(datos.estatus === "exito") {
                         datos.datos.forEach(jugador => {
@@ -116,7 +116,7 @@
                 .catch(error => console.error('Error al cargar la plantilla:', error));
         }
 
-        // 2. PETICIÓN POST: Enviar información de un nuevo registro
+        
         function registrarJugador() {
             const nombre = document.getElementById('nombre').value;
             const posicion = document.getElementById('posicion').value;
@@ -141,7 +141,6 @@
             .then(respuesta => respuesta.json())
             .then(datos => {
                 if(datos.estatus === "exito") {
-                    // Limpiar el formulario y recargar la tabla
                     document.getElementById('nombre').value = '';
                     document.getElementById('dorsal').value = '';
                     cargarPlantilla(); 
@@ -151,7 +150,6 @@
             });
         }
 
-        // 3. PETICIÓN DELETE: Enviar la instrucción de borrar al servidor
         function eliminarJugador(idJugador) {
             if(confirm("¿Estás seguro de eliminar a este jugador de la plantilla?")) {
                 fetch(urlAPI, {
@@ -162,13 +160,13 @@
                 .then(respuesta => respuesta.json())
                 .then(datos => {
                     if(datos.estatus === "exito") {
-                        cargarPlantilla(); // Recargar la tabla para ver los cambios
+                        cargarPlantilla(); 
                     }
                 });
             }
         }
 
-        // Ejecutar la petición GET inicial en cuanto cargue la página
+        
         cargarPlantilla();
     </script>
 </body>
